@@ -5,6 +5,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.List;
@@ -91,7 +92,7 @@ public class SecurityConfig {
         .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
         // set the token type to opaque which requires introspection
         .tokenSettings(TokenSettings.builder()
-            .accessTokenFormat(OAuth2TokenFormat.REFERENCE).build())
+            .accessTokenFormat(OAuth2TokenFormat.REFERENCE).accessTokenTimeToLive(Duration.ofHours(12)).build())
         // set the scope granted for the client    
         .scope("CUSTOM")
         .build();
