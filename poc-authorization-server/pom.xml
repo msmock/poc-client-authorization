@@ -8,11 +8,10 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>poc-authorization-server</name>
 
-    <!-- TODO: code works only up to version 3.1.0 -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.5</version>
     </parent>
 
     <properties>

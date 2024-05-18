@@ -95,6 +95,7 @@ public class SecurityConfig {
             .accessTokenFormat(OAuth2TokenFormat.REFERENCE).accessTokenTimeToLive(Duration.ofHours(12)).build())
         // set the scope granted for the client    
         .scope("CUSTOM")
+        .scope("MIX")
         .build();
 
     list.add(client); 
