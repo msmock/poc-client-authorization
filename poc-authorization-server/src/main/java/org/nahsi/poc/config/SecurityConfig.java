@@ -91,8 +91,8 @@ public class SecurityConfig {
         .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
         .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
         // set the token type to opaque which requires introspection
-        .tokenSettings(TokenSettings.builder()
-            .accessTokenFormat(OAuth2TokenFormat.REFERENCE).accessTokenTimeToLive(Duration.ofHours(12)).build())
+        // .tokenSettings(TokenSettings.builder()
+        //    .accessTokenFormat(OAuth2TokenFormat.REFERENCE).accessTokenTimeToLive(Duration.ofHours(12)).build())
         // set the scope granted for the client    
         .scope("CUSTOM")
         .scope("MIX")
