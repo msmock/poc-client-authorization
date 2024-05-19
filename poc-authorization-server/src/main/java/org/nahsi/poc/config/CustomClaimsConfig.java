@@ -7,7 +7,8 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 
 @Configuration
-public class CustomClaimsConfiguration {
+public class CustomClaimsConfig {
+
     @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer() {
         return (context) -> {
@@ -19,4 +20,5 @@ public class CustomClaimsConfiguration {
             }
         };
     }
+
 }

@@ -6,9 +6,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.UUID;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,108 +37,109 @@ import com.nimbusds.jose.proc.SecurityContext;
 @Configuration
 public class SecurityConfig {
 
-  @Bean
-  @Order(1)
-  public SecurityFilterChain asFilterChain(HttpSecurity http)
-      throws Exception {
+    @Bean
+    @Order(1)
+    public SecurityFilterChain asFilterChain(HttpSecurity http)
+            throws Exception {
 
-    OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
-    http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-        .oidc(Customizer.withDefaults());
+        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+                .oidc(Customizer.withDefaults());
 
-    return http.build();
-  }
+        return http.build();
+    }
 
-  @Bean
-  @Order(2)
-  public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
-      throws Exception {
+    @Bean
+    @Order(2)
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
+            throws Exception {
 
-    http.formLogin(Customizer.withDefaults());
+        http.formLogin(Customizer.withDefaults());
 
-    http.authorizeHttpRequests(
-        c -> c.anyRequest().authenticated());
+        http.authorizeHttpRequests(
+                c -> c.anyRequest().authenticated());
 
-    return http.build();
-  }
+        return http.build();
+    }
 
-  /**
-   * Running code implementation. For production use a secure cryptographic
-   * encoder.
-   * 
-   * @return encoder used for staoring and comparing passwords
-   */
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-    return NoOpPasswordEncoder.getInstance();
-  }
+    /**
+     * Running code implementation. For production use a secure cryptographic
+     * encoder.
+     *
+     * @return encoder used for staoring and comparing passwords
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return NoOpPasswordEncoder.getInstance();
+    }
 
-  /**
-   * Running code implementation. For production use a secure datastore (e.g., MongoDB)
-   * 
-   * @return the registration data and the scope granted for the client
-   */
-  @Bean
-  public RegisteredClientRepository registeredClientRepository() {
+    /**
+     * Running code implementation. For production use a secure datastore (e.g., MongoDB)
+     *
+     * @return the registration data and the scope granted for the client
+     */
+    @Bean
+    public RegisteredClientRepository registeredClientRepository() {
 
-    List<RegisteredClient> list = new ArrayList<>(); 
+        List<RegisteredClient> list = new ArrayList<>();
 
-    RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
-        .clientId("client")
-        .clientSecret("secret")
-        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-        .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-        // set the token type to opaque which requires introspection
-        // .tokenSettings(TokenSettings.builder()
-        //    .accessTokenFormat(OAuth2TokenFormat.REFERENCE).accessTokenTimeToLive(Duration.ofHours(12)).build())
-        // set the scope granted for the client    
-        .scope("CUSTOM")
-        .scope("MIX")
-        .build();
+        RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("client")
+                .clientSecret("secret")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .tokenSettings(TokenSettings.builder()
+                        // set the token type to opaque which requires introspection
+                        //    .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
+                        .accessTokenTimeToLive(Duration.ofHours(12)).build())
+                // set the scope granted for the client
+                .scope("CUSTOM") // scopes must be claimed in request
+                .scope("MIX")
+                .build();
 
-    list.add(client); 
+        list.add(client);
 
-    RegisteredClient resourceServer = RegisteredClient.withId(UUID.randomUUID().toString())
-        .clientId("resource-server")
-        .clientSecret("resource-server-secret")
-        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-        .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)   
-        .scope("CUSTOM")
-        .build();
+        RegisteredClient resourceServer = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("resource-server")
+                .clientSecret("resource-server-secret")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .scope("CUSTOM")
+                .build();
 
-    list.add(resourceServer); 
+        list.add(resourceServer);
 
-    return new InMemoryRegisteredClientRepository(list);
-  }
+        return new InMemoryRegisteredClientRepository(list);
+    }
 
-  /**
-   * Running code implementation. For production use the public key shall be
-   * stored in a secure vault.
-   * 
-   * @return the cryptographic key used to sign the token
-   * @throws NoSuchAlgorithmException
-   */
-  @Bean
-  public JWKSource<SecurityContext> jwkSource() throws NoSuchAlgorithmException {
+    /**
+     * Running code implementation. For production use the public key shall be
+     * stored in a secure vault.
+     *
+     * @return the cryptographic key used to sign the token
+     * @throws NoSuchAlgorithmException
+     */
+    @Bean
+    public JWKSource<SecurityContext> jwkSource() throws NoSuchAlgorithmException {
 
-    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-    keyPairGenerator.initialize(2048);
-    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
-    RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-    RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-    RSAKey rsaKey = new RSAKey.Builder(publicKey)
-        .privateKey(privateKey)
-        .keyID(UUID.randomUUID().toString())
-        .build();
-    JWKSet jwkSet = new JWKSet(rsaKey);
+        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        RSAKey rsaKey = new RSAKey.Builder(publicKey)
+                .privateKey(privateKey)
+                .keyID(UUID.randomUUID().toString())
+                .build();
+        JWKSet jwkSet = new JWKSet(rsaKey);
 
-    return new ImmutableJWKSet<>(jwkSet);
-  }
+        return new ImmutableJWKSet<>(jwkSet);
+    }
 
-  @Bean
-  public AuthorizationServerSettings authorizationServerSettings() {
-    return AuthorizationServerSettings.builder().build();
-  }
+    @Bean
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder().build();
+    }
 }
