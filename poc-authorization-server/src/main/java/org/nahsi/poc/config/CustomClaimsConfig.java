@@ -6,6 +6,9 @@ import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 
+/**
+ * NOTE: Works for JWT access token only, not for opaque returned from introspection
+ */
 @Configuration
 public class CustomClaimsConfig {
 
