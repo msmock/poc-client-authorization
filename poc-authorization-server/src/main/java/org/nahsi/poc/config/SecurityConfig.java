@@ -96,7 +96,7 @@ public class SecurityConfig {
                 .tokenSettings(TokenSettings.builder()
                         // set the token type to opaque which requires introspection
                         // .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
-                        .accessTokenTimeToLive(Duration.ofHours(12)).build())
+                        .accessTokenTimeToLive(Duration.ofMinutes(5)).build())
                 // set the scope granted for the client
                 .scope("CUSTOM") // scopes must be claimed in request
                 .scope("MIX")

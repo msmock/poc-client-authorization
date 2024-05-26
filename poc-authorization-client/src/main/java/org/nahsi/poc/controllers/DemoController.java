@@ -8,21 +8,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DemoController {
 
-  private final OAuth2AuthorizedClientManager clientManager;
+    private final OAuth2AuthorizedClientManager clientManager;
 
-  public DemoController(OAuth2AuthorizedClientManager clientManager) {
-    this.clientManager = clientManager;
-  }
+    public DemoController(OAuth2AuthorizedClientManager clientManager) {
+        this.clientManager = clientManager;
+    }
 
-  @GetMapping("/token")
-  public String token() {
-    OAuth2AuthorizeRequest request = OAuth2AuthorizeRequest
-        .withClientRegistrationId("1")
-        .principal("client")
-        .build();
+    @GetMapping("/token")
+    public String token() {
 
-    var client = clientManager.authorize(request);
+        var request = OAuth2AuthorizeRequest
+                .withClientRegistrationId("1")
+                .principal("client")
+                .build();
 
-    return client.getAccessToken().getTokenValue();
-  }
+        var authorizedClient = clientManager.authorize(request);
+
+        assert authorizedClient != null;
+        return authorizedClient.getAccessToken().getTokenValue();
+    }
 }
