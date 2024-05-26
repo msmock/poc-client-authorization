@@ -1,14 +1,10 @@
 package org.nahsi.poc.config;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.time.Duration;
-import java.util.*;
-import java.util.function.Consumer;
-
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -28,35 +24,43 @@ import org.springframework.security.oauth2.server.authorization.settings.OAuth2T
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Configuration
 public class SecurityConfig {
 
+    /**
+     * accept the default spring security setting
+     */
     @Bean
     @Order(1)
-    public SecurityFilterChain asFilterChain(HttpSecurity http)
+    public SecurityFilterChain defaultSecuritySettings(HttpSecurity http)
             throws Exception {
 
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(Customizer.withDefaults());
 
         return http.build();
     }
 
+    /**
+     * @return the login form returned with GET requests. Can be removed for client credential flow.
+     */
     @Bean
     @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
+    public SecurityFilterChain defaultFormBasedLogin(HttpSecurity http)
             throws Exception {
 
         http.formLogin(Customizer.withDefaults());
-
         http.authorizeHttpRequests(
                 c -> c.anyRequest().authenticated());
 
@@ -67,7 +71,7 @@ public class SecurityConfig {
      * Running code implementation. For production use a secure cryptographic
      * encoder.
      *
-     * @return encoder used for staoring and comparing passwords
+     * @return encoder used for storing and comparing passwords
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -91,7 +95,7 @@ public class SecurityConfig {
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .tokenSettings(TokenSettings.builder()
                         // set the token type to opaque which requires introspection
-                        //    .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
+                        // .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
                         .accessTokenTimeToLive(Duration.ofHours(12)).build())
                 // set the scope granted for the client
                 .scope("CUSTOM") // scopes must be claimed in request
@@ -118,7 +122,6 @@ public class SecurityConfig {
      * stored in a secure vault.
      *
      * @return the cryptographic key used to sign the token
-     * @throws NoSuchAlgorithmException
      */
     @Bean
     public JWKSource<SecurityContext> jwkSource() throws NoSuchAlgorithmException {
@@ -138,6 +141,9 @@ public class SecurityConfig {
         return new ImmutableJWKSet<>(jwkSet);
     }
 
+    /**
+     * The general app settings to configure the endpoints the app exposes.
+     */
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder().build();
