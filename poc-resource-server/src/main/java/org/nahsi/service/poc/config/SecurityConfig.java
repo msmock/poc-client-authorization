@@ -17,10 +17,10 @@ public class SecurityConfig {
     @Value("${introspectionUri}")
     private String introspectionUri;
 
-    @Value("${resourceserver.clientID}")
+    @Value("${clientID}")
     private String resourceServerClientID;
 
-    @Value("${resourceserver.secret}")
+    @Value("${clientSecret}")
     private String resourceServerSecret;
 
     @Bean

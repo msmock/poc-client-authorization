@@ -1,0 +1,10 @@
+server.port: 9090
+
+spring:
+  main:
+    banner-mode: off
+
+# change client and secret
+introspectionUri: http://localhost:8080/oauth2/introspect
+clientID: resource-server
+clientSecret: resource-server-secret

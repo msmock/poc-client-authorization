@@ -1,4 +1,7 @@
 server.port: 9000
+spring:
+  main:
+    banner-mode: off
 logging:
   level:
     root: INFO
