@@ -32,9 +32,9 @@ public class DemoController {
 
         var token = authorizedClient.getAccessToken();
 
-        LOGGER.debug("requested token from authorization server");
-        LOGGER.debug("token type is: {}", token.getTokenType().getValue());
-        LOGGER.debug("token scopes are: {}", token.getScopes());
+        LOGGER.warn("requested token from authorization server");
+        LOGGER.warn("token type is: {}", token.getTokenType().getValue());
+        LOGGER.warn("token scopes are: {}", token.getScopes());
 
         return token.getTokenValue();
     }

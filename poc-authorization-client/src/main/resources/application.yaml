@@ -4,8 +4,8 @@ spring:
     banner-mode: off
 logging:
   level:
-    root: INFO
-    org.springframework.web: INFO
-    org.springframework.security: INFO
-    org.springframework.security.oauth2: INFO
-    org.nahsi.poc.controllers: Trace
+    root: info
+    org.springframework.web: info
+    org.springframework.security: info
+    org.springframework.security.oauth2: info
+    org.nahsi.poc.controllers: trace
