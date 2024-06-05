@@ -95,8 +95,8 @@ public class SecurityConfig {
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .tokenSettings(TokenSettings.builder()
                         // set the token type to opaque which requires introspection
-                        .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
-                        // .accessTokenTimeToLive(Duration.ofMinutes(5))
+                        // .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
+                        .accessTokenTimeToLive(Duration.ofMinutes(5))
                         .build())
                 // set the scope granted for the client
                 .scope("CUSTOM") // scopes must be claimed in request

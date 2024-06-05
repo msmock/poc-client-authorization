@@ -8,3 +8,10 @@ spring:
 introspectionUri: http://localhost:8080/oauth2/introspect
 clientID: resource-server
 clientSecret: resource-server-secret
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
