@@ -25,7 +25,7 @@ public class JWSTest {
         // the public key must be made known to the JWS recipient to
         // allow the signatures to be verified
         RSAKey rsaKey = new RSAKeyGenerator(2048)
-                .keyID("123")
+                .keyID("a917cf8c-f06d-40fc-82d8-26891237c681")
                 .generate();
 
         RSAKey rsaPublicJWK = rsaKey.toPublicJWK();
