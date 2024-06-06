@@ -28,11 +28,32 @@ public class JWSTest {
                 .keyID("a917cf8c-f06d-40fc-82d8-26891237c681")
                 .generate();
 
-        RSAKey rsaPublicJWK = rsaKey.toPublicJWK();
-
         // Create RSA-signer with the private key
         JWSSigner signer = new RSASSASigner(rsaKey);
 
+        String json = getPayload();
+
+        // Prepare JWS object with simple string as payload
+        JWSObject jwsObject = new JWSObject(
+                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(),
+                new Payload(json));
+
+        // Compute the RSA signature
+        jwsObject.sign(signer);
+
+        // Serialize to compact form
+        String s = jwsObject.serialize();
+
+        // To parse the JWS and verify it, e.g. on client-side
+        jwsObject = JWSObject.parse(s);
+
+        RSAKey rsaPublicKey = rsaKey.toPublicJWK();
+        JWSVerifier verifier = new RSASSAVerifier(rsaPublicKey);
+
+        assertTrue(jwsObject.verify(verifier));
+    }
+
+    private static String getPayload() throws JsonProcessingException {
 
         // create `ObjectMapper` instance
         ObjectMapper mapper = new ObjectMapper();
@@ -58,31 +79,7 @@ public class JWSTest {
         accessToken.putIfAbsent("scope", scope);
 
         // convert `ObjectNode` to pretty-print JSON
-        // without pretty-print, use `user.toString()` method
-        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(accessToken);
-
-        // Prepare JWS object with simple string as payload
-        JWSObject jwsObject = new JWSObject(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(),
-                new Payload(json));
-
-        // Compute the RSA signature
-        jwsObject.sign(signer);
-
-        // To serialize to compact form, produces something like:
-        // eyJhbGciOiJSUzI1NiJ9.SW4gUlNBIHdlIHRydXN0IQ.IRMQENi4nJyp4er2L
-        // mZq3ivwoAjqa1uUkSBKFIX7ATndFF5ivnt-m8uApHO4kfIFOrW7w2Ezmlg3Qd
-        // maXlS9DhN0nUk_hGI3amEjkKd0BWYCB8vfUbUv0XGjQip78AI4z1PrFRNidm7
-        // -jPDm5Iq0SZnjKjCNS5Q15fokXZc8u0A
-        String s = jwsObject.serialize();
-
-        // To parse the JWS and verify it, e.g. on client-side
-        jwsObject = JWSObject.parse(s);
-
-        JWSVerifier verifier = new RSASSAVerifier(rsaPublicJWK);
-
-        assertTrue(jwsObject.verify(verifier));
-
+        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(accessToken);
     }
 
 
