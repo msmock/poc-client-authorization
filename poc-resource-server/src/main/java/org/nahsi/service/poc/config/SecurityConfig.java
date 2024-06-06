@@ -23,14 +23,26 @@ public class SecurityConfig {
     @Value("${clientSecret}")
     private String resourceServerSecret;
 
+    // the url to lookup the public key
+    @Value("${keySetURI}")
+    private String keySetUri;
+
     @Bean
     @Order(1)
     public SecurityFilterChain setIntrospection(HttpSecurity http) throws Exception {
 
+        // uncomment to activate introspection
+        /** http.oauth2ResourceServer(
+         c -> c.opaqueToken(
+         o -> o.introspectionUri(introspectionUri)
+         .introspectionClientCredentials(resourceServerClientID, resourceServerSecret)
+         )
+         );**/
+
+        // use lookup for the public key at authZ server
         http.oauth2ResourceServer(
-                c -> c.opaqueToken(
-                        o -> o.introspectionUri(introspectionUri)
-                                .introspectionClientCredentials(resourceServerClientID, resourceServerSecret)
+                c -> c.jwt(
+                        j -> j.jwkSetUri(keySetUri)
                 )
         );
 

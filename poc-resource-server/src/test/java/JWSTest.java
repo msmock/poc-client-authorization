@@ -10,6 +10,8 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -76,17 +78,17 @@ public class JWSTest {
         // create `ObjectMapper` instance
         ObjectMapper mapper = new ObjectMapper();
 
-        long now = System.currentTimeMillis() / 100;
-        long exp = now + 12000;
+        Instant now = Instant.now(); // unix time in seconds
+        Instant expires = Instant.now().plus(1, ChronoUnit.HOURS);
 
-        // create a JSON object
+        // create the JSON object
         ObjectNode accessToken = mapper.createObjectNode();
         accessToken.put("sub", "client");
         accessToken.put("aud", "client");
 
-        accessToken.put("iat", String.valueOf(now));
-        accessToken.put("nbf", String.valueOf(now));
-        accessToken.put("exp", String.valueOf(exp));
+        accessToken.put("iat", now.getEpochSecond());
+        accessToken.put("nbf", now.getEpochSecond());
+        accessToken.put("exp", expires.getEpochSecond());
 
         accessToken.put("iss", "http://localhost:8080");
         accessToken.put("jti", UUID.randomUUID().toString());
