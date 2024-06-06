@@ -15,6 +15,9 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
+/**
+ * JWS playground test
+ */
 public class JWSTest {
 
 
@@ -31,7 +34,7 @@ public class JWSTest {
         // Create RSA-signer with the private key
         JWSSigner signer = new RSASSASigner(rsaKey);
 
-        String json = getPayload();
+        String json = buildPayload();
 
         // Prepare JWS object with simple string as payload
         JWSObject jwsObject = new JWSObject(
@@ -42,23 +45,38 @@ public class JWSTest {
         jwsObject.sign(signer);
 
         // Serialize to compact form
-        String s = jwsObject.serialize();
+        String serialized = jwsObject.serialize();
 
-        // To parse the JWS and verify it, e.g. on client-side
-        jwsObject = JWSObject.parse(s);
-
+        // get the public key
         RSAKey rsaPublicKey = rsaKey.toPublicJWK();
-        JWSVerifier verifier = new RSASSAVerifier(rsaPublicKey);
 
-        assertTrue(jwsObject.verify(verifier));
+        assertTrue(isVerified(serialized, rsaPublicKey));
     }
 
-    private static String getPayload() throws JsonProcessingException {
+    /**
+     * verify the signature of the token
+     *
+     * @param serialized   the serialized form of the JWS token
+     * @param rsaPublicKey the public key
+     * @return true, if verified
+     */
+    private static boolean isVerified(String serialized, RSAKey rsaPublicKey) throws ParseException, JOSEException {
+
+        // To parse the JWS and verify it, e.g. on client-side
+        JWSObject jwsObjectToCheck = JWSObject.parse(serialized);
+
+        JWSVerifier verifier = new RSASSAVerifier(rsaPublicKey);
+
+        return jwsObjectToCheck.verify(verifier);
+    }
+
+
+    private static String buildPayload() throws JsonProcessingException {
 
         // create `ObjectMapper` instance
         ObjectMapper mapper = new ObjectMapper();
 
-        long now = System.currentTimeMillis()/100;
+        long now = System.currentTimeMillis() / 100;
         long exp = now + 12000;
 
         // create a JSON object
