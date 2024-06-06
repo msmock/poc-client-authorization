@@ -24,14 +24,14 @@ public class JWSTest {
         // RSA signatures require a public and private RSA key pair,
         // the public key must be made known to the JWS recipient to
         // allow the signatures to be verified
-        RSAKey rsaJWK = new RSAKeyGenerator(2048)
+        RSAKey rsaKey = new RSAKeyGenerator(2048)
                 .keyID("123")
                 .generate();
 
-        RSAKey rsaPublicJWK = rsaJWK.toPublicJWK();
+        RSAKey rsaPublicJWK = rsaKey.toPublicJWK();
 
         // Create RSA-signer with the private key
-        JWSSigner signer = new RSASSASigner(rsaJWK);
+        JWSSigner signer = new RSASSASigner(rsaKey);
 
 
         // create `ObjectMapper` instance
@@ -63,7 +63,7 @@ public class JWSTest {
 
         // Prepare JWS object with simple string as payload
         JWSObject jwsObject = new JWSObject(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaJWK.getKeyID()).build(),
+                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(rsaKey.getKeyID()).build(),
                 new Payload(json));
 
         // Compute the RSA signature
